@@ -33,18 +33,17 @@ type DB struct {
 	raft  *raft.Service
 }
 
-// Exec executes the provided operations. If all of the provided conditionals
-// are met, all of the provided effects are applied atomically.
+// Exec executes the provided operations
+// after combining them with All.
 func (db *DB) Exec(ctx context.Context, ops ...Op) error {
-	instr := new(sinkpb.Instruction)
-	for _, op := range ops {
-		if op.err != nil {
-			return op.err
-		}
-		instr.Conditions = append(instr.Conditions, op.conds...)
-		instr.Operations = append(instr.Operations, op.effects...)
+	all := All(ops...)
+	if all.err != nil {
+		return all.err
 	}
-	encoded, err := proto.Marshal(instr)
+	encoded, err := proto.Marshal(&sinkpb.Instruction{
+		Conditions: all.conds,
+		Operations: all.effects,
+	})
 	if err != nil {
 		return err
 	}
