@@ -100,7 +100,7 @@ export const create = () => {
     const amount = spendFromAccount.amount
     const promisedInputMap = getPromisedInputMap(inputMap)
     const promisedTemplate = promisedInputMap.then((inputMap) => {
-      const args = getContractArgs(state, inputMap).map(param => {
+      const argMap = getContractArgs(state, inputMap).map(param => {
         if (param instanceof Buffer) {
           return { "string": param.toString('hex') }
         }
@@ -118,7 +118,7 @@ export const create = () => {
         }
         throw 'unsupported argument type ' + (typeof param)
       })
-      return client.ivy.compile({ contract: source, args: args })
+      return client.ivy.compile({ source, argMap })
     })
 
     const promisedUtxo = promisedTemplate.then(template => {

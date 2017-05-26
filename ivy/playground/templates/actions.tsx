@@ -52,7 +52,7 @@ export const FETCH_COMPILED = 'templates/FETCH_COMPILED'
 
 export const fetchCompiled = (source: string) => {
   return (dispatch, getState) => {
-    return client.ivy.compile({ contract: source }).then((result) => {
+    return client.ivy.compile({ source }).then((result) => {
       const type = FETCH_COMPILED
       const format = (tpl: CompiledTemplate) => {
         if (tpl.error !== '') {
@@ -61,7 +61,7 @@ export const fetchCompiled = (source: string) => {
         return tpl
       }
       const compiled = format(result)
-      const inputMap = generateInputMap(compiled)
+      const inputMap = generateInputMap(compiled[0])
       dispatch({ type, compiled, inputMap })
     }).catch((e) => {throw e})
   }
